@@ -1,0 +1,218 @@
+/* Shared Responsive Table Styles */
+@import './Layout.css';
+
+.page-container {
+    padding: 2rem;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.page-subtitle {
+    color: #6B7280;
+    margin: 0.5rem 0 0;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: #111827;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #1F2937;
+}
+
+/* Table Card Container */
+.table-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    border: 1px solid #E5E7EB;
+}
+
+.responsive-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.responsive-table th {
+    background: #F9FAFB;
+    border-bottom: 1px solid #E5E7EB;
+    text-align: left;
+    padding: 1rem;
+    color: #6B7280;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.responsive-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #F3F4F6;
+    color: #374151;
+    vertical-align: middle;
+}
+
+.responsive-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Specific Cell Styles */
+.user-info {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #E5E7EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #4B5563;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.status-active {
+    background: #DEF7EC;
+    color: #03543F;
+}
+
+.status-inactive {
+    background: #FDE8E8;
+    color: #9B1C1C;
+}
+
+.status-warning {
+    background: #FFF8E1;
+    color: #92400E;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9CA3AF;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.action-btn:hover {
+    background: #F3F4F6;
+    color: #111827;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .page-container {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .table-card {
+        background: transparent;
+        box-shadow: none;
+        border: none;
+    }
+
+    .responsive-table,
+    .responsive-table tbody,
+    .responsive-table tr,
+    .responsive-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .responsive-table thead {
+        display: none;
+    }
+
+    .responsive-table tr {
+        background: white;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        padding: 1rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        border: 1px solid #E5E7EB;
+    }
+
+    .responsive-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        padding: 0.75rem 0;
+        border-bottom: 1px dashed #F3F4F6;
+    }
+
+    .responsive-table td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .responsive-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #6B7280;
+        text-align: left;
+    }
+
+    /* Special treatment for first cell (usually Main Identifier like Name/ID) */
+    .responsive-table td:first-child {
+        padding-top: 0;
+        border-bottom: 1px solid #E5E7EB;
+        margin-bottom: 0.5rem;
+    }
+
+    .responsive-table td:first-child::before {
+        display: none;
+    }
+
+    .user-info {
+        justify-content: flex-start;
+    }
+}

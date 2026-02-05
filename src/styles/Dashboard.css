@@ -1,0 +1,348 @@
+/* Dashboard Styles */
+.dashboard-container {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+}
+
+.dash-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: #111827;
+}
+
+.dash-header p {
+    color: #6B7280;
+    margin: 0;
+}
+
+.date-badge {
+    background: white;
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    border: 1px solid #E5E7EB;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #4B5563;
+    font-weight: 500;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid #E5E7EB;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.metric-card.primary {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    border: none;
+}
+
+.metric-card.primary .metric-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.metric-card.primary .metric-label,
+.metric-card.primary .metric-sub {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.metric-card.primary .metric-value {
+    color: white;
+}
+
+.metric-card.primary .metric-trend {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #F3F4F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4B5563;
+}
+
+.metric-icon.blue {
+    background: #DBEAFE;
+    color: #1D4ED8;
+}
+
+.metric-icon.purple {
+    background: #F3E8FF;
+    color: #7E22CE;
+}
+
+.metric-icon.orange {
+    background: #FFEDD5;
+    color: #C2410C;
+}
+
+.metric-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #6B7280;
+    margin-bottom: 0.25rem;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.metric-sub {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+}
+
+.metric-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.metric-trend.positive {
+    background: #DCFCE7;
+    color: #166534;
+}
+
+/* Dashboard Content Split */
+.dashboard-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-section,
+.activity-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid #E5E7EB;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-header h3,
+.activity-section h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.period-select {
+    padding: 0.4rem;
+    border-radius: 6px;
+    border: 1px solid #E5E7EB;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+/* Custom Chart */
+.custom-chart {
+    height: 300px;
+    position: relative;
+    padding-top: 20px;
+}
+
+.chart-bg-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 0;
+}
+
+.chart-bg-lines div {
+    height: 1px;
+    background: #F3F4F6;
+    width: 100%;
+}
+
+.chart-bars {
+    height: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding-bottom: 2rem;
+    /* space for labels */
+    position: relative;
+    z-index: 1;
+}
+
+.bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    width: 40px;
+    position: relative;
+}
+
+.bar {
+    width: 100%;
+    background: linear-gradient(to top, #10B981, #34D399);
+    border-radius: 6px 6px 0 0;
+    transition: height 1s ease-out;
+    position: relative;
+    cursor: pointer;
+}
+
+.bar:hover {
+    opacity: 0.9;
+}
+
+.label {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #6B7280;
+    font-weight: 500;
+}
+
+.tooltip {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1F2937;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.bar:hover .tooltip {
+    opacity: 1;
+}
+
+/* Activity List */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.activity-icon {
+    width: 36px;
+    height: 36px;
+    background: #F3F4F6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6B7280;
+    flex-shrink: 0;
+}
+
+.activity-icon.sale {
+    background: #ECFDF5;
+    color: #059669;
+}
+
+.activity-info {
+    flex: 1;
+}
+
+.act-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1F2937;
+}
+
+.act-desc {
+    font-size: 0.8rem;
+    color: #6B7280;
+    margin-top: 0.2rem;
+}
+
+.act-time {
+    font-size: 0.75rem;
+    color: #9CA3AF;
+}
+
+/* Mobile Dashboard Adjustments */
+@media (max-width: 640px) {
+    .dash-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        /* Stack cards */
+    }
+
+    .metric-card {
+        padding: 1rem;
+    }
+
+    .metric-value {
+        font-size: 1.25rem;
+    }
+}
