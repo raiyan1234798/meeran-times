@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Search,
     ShoppingCart,
@@ -9,22 +10,17 @@ import {
     CreditCard,
     Printer,
     Share2,
-    Camera
+    Camera,
+    Check,
+    X,
+    Eye
 } from 'lucide-react';
 import '../styles/POS.css';
 import SmartScannerModal from '../components/smart-search/SmartScannerModal';
 import { generateWhatsAppLink } from '../utils/whatsapp';
 import { printThermalBill } from '../utils/printer';
-
-// Mock Data
-const PRODUCTS = [
-    { id: '1', name: 'Titan Neo Splash', model: 'Ti-90123', price: 4995, image: 'T' },
-    { id: '2', name: 'Fastrack Reflex', model: 'Fa-X100', price: 2495, image: 'F' },
-    { id: '3', name: 'Casio Vintage', model: 'A168', price: 3995, image: 'C' },
-    { id: '4', name: 'G-Shock GA-2100', model: 'GA-2100', price: 8995, image: 'G' },
-    { id: '5', name: 'Fossil Gen 6', model: 'FTW4061', price: 18995, image: 'F' },
-    { id: '6', name: 'Sonata Gold', model: 'SG-889', price: 1499, image: 'S' },
-];
+import { useShop } from '../contexts/ShopContext';
+import { useInventory } from '../contexts/InventoryContext';
 
 const SALESMEN = [
     { id: 1, name: 'Rahul' },
@@ -32,10 +28,10 @@ const SALESMEN = [
     { id: 3, name: 'Ahmed' }
 ];
 
-import { useShop } from '../contexts/ShopContext';
-
 const POS = () => {
-    const { currentShop } = useShop(); // Get current shop details
+    const { currentShop, selectedShop } = useShop();
+    const { products, recordSale } = useInventory();
+
     const [cart, setCart] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSalesman, setSelectedSalesman] = useState('');
@@ -43,8 +39,10 @@ const POS = () => {
     const [showManualEntry, setShowManualEntry] = useState(false);
     const [manualItem, setManualItem] = useState({ name: '', price: '' });
     const [isScannerOpen, setIsScannerOpen] = useState(false);
+    const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('Cash');
     const [gstNo, setGstNo] = useState('');
+    const [mobileView, setMobileView] = useState('products');
 
     const addManualItem = () => {
         if (!manualItem.name || !manualItem.price) return;
@@ -53,7 +51,7 @@ const POS = () => {
             name: manualItem.name,
             model: 'MANUAL',
             price: parseFloat(manualItem.price),
-            image: 'M',
+            image: null,
             qty: 1
         };
         setCart([...cart, newItem]);
@@ -62,14 +60,20 @@ const POS = () => {
     };
 
     const handleScanMatch = (product) => {
-        // Logic to find product in DB (mocked here)
-        const matchedProduct = PRODUCTS.find(p => p.model === product.model) || PRODUCTS[0];
+        const matchedProduct = products.find(p => p.model === product.model) || products[0];
         addToCart(matchedProduct);
-        alert(`AI Matched: ${matchedProduct.name}`);
     };
 
-    // Add Item
     const addToCart = (product) => {
+        // Check local stock
+        const currentStock = product.stock[selectedShop] || 0;
+        const inCart = cart.find(item => item.id === product.id)?.qty || 0;
+
+        if (inCart >= currentStock && product.model !== 'MANUAL') {
+            alert(`Insufficient stock in ${currentShop.name}!`);
+            return;
+        }
+
         setCart(currentCart => {
             const existing = currentCart.find(item => item.id === product.id);
             if (existing) {
@@ -81,8 +85,17 @@ const POS = () => {
         });
     };
 
-    // Update Qty
     const updateQty = (id, delta) => {
+        const product = products.find(p => p.id === id);
+        if (delta > 0 && product) {
+            const currentStock = product.stock[selectedShop] || 0;
+            const inCart = cart.find(item => item.id === id)?.qty || 0;
+            if (inCart >= currentStock && product.model !== 'MANUAL') {
+                alert("Cannot exceed available stock!");
+                return;
+            }
+        }
+
         setCart(currentCart => currentCart.map(item => {
             if (item.id === id) {
                 const newQty = Math.max(1, item.qty + delta);
@@ -92,28 +105,159 @@ const POS = () => {
         }));
     };
 
-    // Remove Item
     const removeFromCart = (id) => {
         setCart(currentCart => currentCart.filter(item => item.id !== id));
     };
 
-    // Calculations
     const subTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-    const tax = subTotal * 0.18; // 18% GST Mock
+    const tax = subTotal * 0.18;
     const total = subTotal + tax;
+
+    const navigate = useNavigate();
+
+    const handleFinalPrint = () => {
+        const billId = Date.now().toString().slice(-6);
+        const saleData = {
+            items: cart,
+            total,
+            subTotal,
+            tax,
+            shopId: selectedShop,
+            shopName: currentShop.name,
+            customerName,
+            salesman: SALESMEN.find(s => s.id == selectedSalesman)?.name || 'General',
+            paymentMethod,
+            gstNo,
+            billId,
+            date: new Date().toLocaleDateString('en-IN')
+        };
+
+        // 1. Record Sale and Update Stock
+        recordSale(saleData);
+
+        // 2. Navigate to Preview Page
+        navigate('/print-bill', { state: { billData: saleData } });
+
+        // 3. Clear POS
+        setCart([]);
+        setCustomerName('');
+        setGstNo('');
+        setSelectedSalesman('');
+        setIsReviewOpen(false);
+        setMobileView('products');
+    };
+
+    const handlePreviewInvoice = () => {
+        if (cart.length === 0) return alert('Cart is empty');
+
+        const saleData = {
+            items: cart,
+            total,
+            subTotal,
+            tax,
+            shopId: selectedShop,
+            shopName: currentShop.name,
+            customerName,
+            salesman: SALESMEN.find(s => s.id == selectedSalesman)?.name || 'General',
+            paymentMethod,
+            gstNo,
+            billId: 'PREVIEW-' + Date.now().toString().slice(-4),
+            date: new Date().toLocaleDateString('en-IN')
+        };
+
+        navigate('/print-bill', { state: { billData: saleData } });
+    };
 
     return (
         <div className="pos-container">
             <div style={{ gridColumn: '1 / -1', padding: '0 1rem', marginBottom: '-1rem' }}>
                 <h2 style={{ fontSize: '1.2rem', color: '#111827' }}>{currentShop.name} - Billing</h2>
             </div>
+
             <SmartScannerModal
                 isOpen={isScannerOpen}
                 onClose={() => setIsScannerOpen(false)}
                 onMatchFound={handleScanMatch}
             />
-            {/* LEFT: Product Catalog */}
-            <div className="pos-left">
+
+            {/* Bill Verification Modal */}
+            {isReviewOpen && (
+                <div className="edit-modal-overlay">
+                    <div className="edit-modal-card" style={{ maxWidth: '500px' }}>
+                        <div className="modal-title-row">
+                            <h2>Review Bill Details</h2>
+                            <button className="close-modal-btn" onClick={() => setIsReviewOpen(false)}>
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div style={{ maxHeight: '60vh', overflowY: 'auto', marginBottom: '1.5rem' }}>
+                            <div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #F3F4F6' }}>
+                                <p style={{ fontSize: '0.9rem', color: '#6B7280' }}>Customer: <strong>{customerName || 'Walk-in'}</strong></p>
+                                <p style={{ fontSize: '0.9rem', color: '#6B7280' }}>Payment: <strong>{paymentMethod}</strong></p>
+                            </div>
+
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ textAlign: 'left', fontSize: '0.8rem', color: '#9CA3AF', borderBottom: '1px solid #F3F4F6' }}>
+                                        <th style={{ padding: '0.5rem 0' }}>ITEM</th>
+                                        <th style={{ textAlign: 'center' }}>QTY</th>
+                                        <th style={{ textAlign: 'right' }}>PRICE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {cart.map(item => (
+                                        <tr key={item.id} style={{ fontSize: '0.9rem', borderBottom: '1px solid #F9FAFB' }}>
+                                            <td style={{ padding: '0.75rem 0' }}>
+                                                <div style={{ fontWeight: '600' }}>{item.name}</div>
+                                                <div style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>{item.model}</div>
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>{item.qty}</td>
+                                            <td style={{ textAlign: 'right' }}>₹{(item.price * item.qty).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div style={{ background: '#F9FAFB', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                <span>Subtotal</span>
+                                <span>₹{subTotal.toLocaleString()}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: '800', fontSize: '1.2rem', color: '#111827' }}>
+                                <span>Total Payable</span>
+                                <span>₹{total.toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        <div className="modal-actions">
+                            <button className="btn-card btn-outline" style={{ border: '1px solid #D1D5DB', padding: '0.75rem' }} onClick={() => setIsReviewOpen(false)}>Cancel</button>
+                            <button className="btn-pay" style={{ background: '#10B981', flex: 2 }} onClick={handleFinalPrint}>
+                                <Printer size={20} /> Final Print & Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Mobile View Toggle */}
+            <div className="mobile-view-tabs">
+                <button
+                    className={`tab-btn ${mobileView === 'products' ? 'active' : ''}`}
+                    onClick={() => setMobileView('products')}
+                >
+                    Products
+                </button>
+                <button
+                    className={`tab-btn ${mobileView === 'cart' ? 'active' : ''}`}
+                    onClick={() => setMobileView('cart')}
+                >
+                    Current Bill ({cart.length})
+                </button>
+            </div>
+
+            <div className={`pos-left ${mobileView !== 'products' ? 'mobile-hidden' : ''}`}>
                 <div className="pos-header">
                     <div className="search-box">
                         <Search size={20} />
@@ -127,18 +271,17 @@ const POS = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
-                                    const exactMatch = PRODUCTS.find(p => p.model.toLowerCase() === searchTerm.toLowerCase() || p.id === searchTerm);
+                                    const exactMatch = products.find(p => p.model.toLowerCase() === searchTerm.toLowerCase() || p.id === searchTerm);
                                     if (exactMatch) {
                                         addToCart(exactMatch);
                                         setSearchTerm('');
-                                        // Optional: Play a beep sound here
                                     }
                                 }
                             }}
                             autoFocus
                         />
                     </div>
-                    {/* Manual Entry Toggle */}
+
                     <div style={{ marginBottom: '1rem' }}>
                         <button
                             style={{
@@ -182,21 +325,35 @@ const POS = () => {
                 </div>
 
                 <div className="product-grid">
-                    {PRODUCTS.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map(product => (
-                        <div key={product.id} className="product-card" onClick={() => addToCart(product)}>
-                            <div className="p-image">{product.image}</div>
-                            <div className="p-details">
-                                <div className="p-model">{product.model}</div>
-                                <div className="p-name">{product.name}</div>
-                                <div className="p-price">₹{product.price.toLocaleString()}</div>
+                    {products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map(product => {
+                        const stock = product.stock[selectedShop] || 0;
+                        return (
+                            <div
+                                key={product.id}
+                                className={`product-card ${stock === 0 ? 'out-of-stock' : ''}`}
+                                onClick={() => stock > 0 && addToCart(product)}
+                            >
+                                <div className="p-image">
+                                    {product.image ? (
+                                        <img src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                        <span style={{ fontSize: '1.5rem', color: '#9CA3AF' }}>{product.brand[0]}</span>
+                                    )}
+                                    {stock <= 5 && stock > 0 && <span className="stock-tag-warning">Only {stock} left</span>}
+                                    {stock === 0 && <span className="stock-tag-error">Out of Stock</span>}
+                                </div>
+                                <div className="p-details">
+                                    <div className="p-model">{product.model}</div>
+                                    <div className="p-name">{product.name}</div>
+                                    <div className="p-price">₹{product.price.toLocaleString()}</div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
-            {/* RIGHT: Cart & Billing */}
-            <div className="pos-right">
+            <div className={`pos-right ${mobileView !== 'cart' ? 'mobile-hidden' : ''}`}>
                 <div className="cart-header">
                     <h3>Current Bill</h3>
                     <button className="clear-btn" onClick={() => setCart([])}>Clear</button>
@@ -275,16 +432,11 @@ const POS = () => {
                                         key={method}
                                         onClick={() => setPaymentMethod(method)}
                                         style={{
-                                            flex: 1,
-                                            minWidth: '60px',
-                                            padding: '0.5rem',
-                                            borderRadius: '6px',
-                                            border: paymentMethod === method ? '2px solid #10B981' : '1px solid #D1D5DB',
+                                            flex: 1, minWidth: '60px', padding: '0.5rem',
+                                            borderRadius: '6px', border: paymentMethod === method ? '2px solid #10B981' : '1px solid #D1D5DB',
                                             background: paymentMethod === method ? '#ECFDF5' : 'white',
                                             color: paymentMethod === method ? '#047857' : '#374151',
-                                            fontWeight: '500',
-                                            fontSize: '0.85rem',
-                                            cursor: 'pointer'
+                                            fontWeight: '500', fontSize: '0.85rem', cursor: 'pointer'
                                         }}
                                     >
                                         {method}
@@ -293,53 +445,29 @@ const POS = () => {
                             </div>
                         </div>
 
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <input
-                                type="text"
-                                placeholder="Customer GST No (Optional)"
-                                value={gstNo}
-                                style={{
-                                    width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #D1D5DB', outline: 'none',
-                                    fontSize: '0.9rem', boxSizing: 'border-box'
-                                }}
-                                onChange={(e) => setGstNo(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="pay-actions">
-                            <button className="btn-pay cash" onClick={() => {
-                                if (cart.length === 0) return alert('Cart is empty');
-                                printThermalBill({
-                                    total, subTotal, tax, items: cart,
-                                    billId: Date.now().toString().slice(-6),
-                                    date: new Date().toLocaleDateString(),
-                                    customerName: customerName,
-                                    salesman: SALESMEN.find(s => s.id == selectedSalesman)?.name,
-                                    paymentMethod: paymentMethod,
-                                    shopName: 'MEERAN TIMES',
-                                    gstNo: gstNo
-                                });
-                            }}>
-                                <Printer size={20} /> Print Bill ({paymentMethod})
+                        <div className="pay-actions" style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button className="btn-pay" style={{ background: '#4B5563', flex: 1 }} onClick={handlePreviewInvoice}>
+                                <Eye size={20} /> Preview
                             </button>
-                            <div className="secondary-actions">
-                                <button className="btn-action" onClick={() => alert('Saved!')}><CreditCard size={20} /></button>
-                                <button className="btn-action" onClick={() => {
-                                    if (cart.length === 0) return alert('Cart is empty');
-                                    const link = generateWhatsAppLink(customerName, {
-                                        total,
-                                        items: cart,
-                                        billId: Date.now().toString().slice(-6),
-                                        date: new Date().toLocaleDateString()
-                                    });
-                                    window.open(link, '_blank');
-                                }}>
-                                    <Share2 size={20} />
-                                </button>
-                            </div>
+                            <button className="btn-pay cash" style={{ flex: 2 }} onClick={() => {
+                                if (cart.length === 0) return alert('Cart is empty');
+                                setIsReviewOpen(true);
+                            }}>
+                                <Check size={20} /> Review & Save
+                            </button>
                         </div>
                     </div>
                 </div>
+
+                {mobileView === 'products' && cart.length > 0 && (
+                    <button className="mobile-checkout-btn" onClick={() => setMobileView('cart')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                            <ShoppingCart size={22} />
+                            <span>Review Bill ({cart.reduce((sum, item) => sum + item.qty, 0)} Items)</span>
+                        </div>
+                        <span className="total-pill">₹{total.toLocaleString()} →</span>
+                    </button>
+                )}
             </div>
         </div>
     );

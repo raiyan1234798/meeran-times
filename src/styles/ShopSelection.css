@@ -1,5 +1,5 @@
 .shop-selection-container {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -11,6 +11,7 @@
 .shop-selection-header {
     text-align: center;
     margin-bottom: 3rem;
+    padding: 0 1rem;
     animation: fadeInDown 0.6s ease-out;
 }
 
@@ -145,5 +146,19 @@
 
     .shop-selection-container {
         padding: 1rem;
+        justify-content: flex-start;
+        padding-top: 3rem;
+    }
+
+    .shop-selection-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .shop-selection-header p {
+        font-size: 1rem;
+    }
+
+    .shop-card {
+        padding: 1.5rem 1rem;
     }
 }

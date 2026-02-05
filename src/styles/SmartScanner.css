@@ -172,3 +172,38 @@
     align-items: center;
     gap: 0.4rem;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    .scanner-card {
+        max-width: 90%;
+        border-radius: 16px;
+    }
+
+    .scanner-view {
+        height: 400px;
+    }
+
+    .scan-circle {
+        width: 80px;
+        height: 80px;
+    }
+
+    .start-scan-placeholder p {
+        font-size: 1.1rem;
+    }
+
+    .ai-overlay {
+        bottom: 1.5rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        width: 80%;
+        justify-content: center;
+    }
+}
+
+@media (max-height: 600px) {
+    .scanner-view {
+        height: 300px;
+    }
+}

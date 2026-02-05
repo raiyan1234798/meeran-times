@@ -358,80 +358,26 @@ const ProductModal = ({ isOpen, onClose, onSave }) => {
 
                         {/* Camera Modal */}
                         {isCameraOpen && (
-                            <div style={{
-                                position: 'fixed',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                background: 'rgba(0,0,0,0.95)',
-                                zIndex: 2000,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                padding: '1rem'
-                            }}>
-                                <div style={{
-                                    position: 'relative',
-                                    width: '100%',
-                                    maxWidth: '500px',
-                                    background: '#000',
-                                    borderRadius: '12px',
-                                    overflow: 'hidden'
-                                }}>
+                            <div className="camera-fullscreen-overlay">
+                                <div className="camera-container">
                                     <video
                                         ref={videoRef}
                                         autoPlay
                                         playsInline
-                                        style={{
-                                            width: '100%',
-                                            height: 'auto',
-                                            display: 'block'
-                                        }}
+                                        className="camera-video"
                                     />
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: '1rem',
-                                        left: 0,
-                                        right: 0,
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        gap: '1rem'
-                                    }}>
+                                    <div className="camera-actions">
                                         <button
                                             type="button"
                                             onClick={closeCamera}
-                                            style={{
-                                                padding: '0.75rem 1.5rem',
-                                                background: '#EF4444',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                fontWeight: '600',
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '0.5rem'
-                                            }}
+                                            className="btn-camera-action btn-camera-cancel"
                                         >
                                             <X size={18} /> Cancel
                                         </button>
                                         <button
                                             type="button"
                                             onClick={capturePhoto}
-                                            style={{
-                                                padding: '0.75rem 1.5rem',
-                                                background: '#10B981',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                fontWeight: '600',
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '0.5rem'
-                                            }}
+                                            className="btn-camera-action btn-camera-capture"
                                         >
                                             <Camera size={18} /> Capture
                                         </button>
@@ -480,16 +426,12 @@ const ProductModal = ({ isOpen, onClose, onSave }) => {
 
                     {/* Barcode Preview & Print */}
                     {formData.model && (
-                        <div style={{ margin: '1rem 0', padding: '1rem', background: '#F9FAFB', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div className="barcode-preview-container">
                             <div>
-                                <label style={{ fontSize: '0.8rem', color: '#6B7280', display: 'block', marginBottom: '0.5rem' }}>Generated Barcode</label>
-                                <canvas ref={barcodeCanvasRef} style={{ maxWidth: '100%' }}></canvas>
+                                <label>Generated Barcode</label>
+                                <canvas ref={barcodeCanvasRef}></canvas>
                             </div>
-                            <button type="button" onClick={handlePrintBarcode} style={{
-                                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                                padding: '0.5rem 1rem', background: '#1F2937', color: 'white',
-                                border: 'none', borderRadius: '6px', cursor: 'pointer'
-                            }}>
+                            <button type="button" className="btn-print-barcode" onClick={handlePrintBarcode}>
                                 <Printer size={16} /> Print Barcode
                             </button>
                         </div>

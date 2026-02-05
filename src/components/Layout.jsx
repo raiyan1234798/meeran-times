@@ -17,7 +17,8 @@ import {
     Bell,
     AlertTriangle,
     ArrowLeftRight,
-    Camera
+    Camera,
+    Wallet
 } from 'lucide-react';
 import '../styles/Layout.css';
 
@@ -96,6 +97,11 @@ const Layout = () => {
                         <NavLink to="/smart-stock" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                             <Camera size={20} />
                             <span>Check Stock</span>
+                        </NavLink>
+
+                        <NavLink to="/expenses" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                            <Wallet size={20} />
+                            <span>Expenses</span>
                         </NavLink>
 
                         {/* Admin Only Modules */}

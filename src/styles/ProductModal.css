@@ -201,3 +201,178 @@ h3 {
         opacity: 1;
     }
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+    .modal-container {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .form-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-upload-section {
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .details-section,
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group.full-width {
+        grid-column: auto;
+    }
+
+    .form-row.three-col {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .btn-cancel,
+    .btn-submit {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Barcode Preview Area */
+.barcode-preview-container {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 1px solid #E5E7EB;
+}
+
+.barcode-preview-container label {
+    font-size: 0.8rem;
+    color: #6B7280;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.barcode-preview-container canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+.btn-print-barcode {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: #1F2937;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.btn-print-barcode:hover {
+    background: #111827;
+}
+
+/* Camera Modal Fixes */
+.camera-fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.camera-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    background: #000;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+.camera-video {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.camera-actions {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0 1rem;
+}
+
+.btn-camera-action {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-camera-capture {
+    background: #10B981;
+    color: white;
+}
+
+.btn-camera-cancel {
+    background: #EF4444;
+    color: white;
+}
+
+@media (max-width: 480px) {
+    .barcode-preview-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .btn-print-barcode {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .camera-actions {
+        flex-direction: column;
+        bottom: 1rem;
+    }
+
+    .btn-camera-action {
+        width: 100%;
+        justify-content: center;
+    }
+}

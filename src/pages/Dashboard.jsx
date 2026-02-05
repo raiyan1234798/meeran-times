@@ -12,9 +12,14 @@ import {
 } from 'lucide-react';
 import '../styles/Dashboard.css';
 import { useShop } from '../contexts/ShopContext';
+import { useInventory } from '../contexts/InventoryContext';
 
 const Dashboard = () => {
     const { currentShop, selectedShop } = useShop();
+    const { getDashboardStats } = useInventory();
+
+    // Get real-time stats from context
+    const stats = getDashboardStats(selectedShop);
 
     return (
         <div className="dashboard-container">
@@ -38,18 +43,18 @@ const Dashboard = () => {
                             <div className="metric-icon"><TrendingUp size={24} /></div>
                             <div>
                                 <div className="metric-label">Sales Today</div>
-                                <div className="metric-value">₹24,500</div>
+                                <div className="metric-value">₹{stats.todayRevenue.toLocaleString()}</div>
                                 <div className="metric-trend positive">
-                                    <ArrowUpRight size={16} /> +12% vs yesterday
+                                    <ArrowUpRight size={16} /> Tracked Sales
                                 </div>
                             </div>
                         </div>
-                        <div className="metric-card">
-                            <div className="metric-icon blue"><Users size={24} /></div>
+                        <div className="metric-card danger" style={{ borderColor: '#FCA5A5' }}>
+                            <div className="metric-icon red" style={{ background: '#FEF2F2', color: '#EF4444' }}><ArrowDownRight size={24} /></div>
                             <div>
-                                <div className="metric-label">Salesmen Active</div>
-                                <div className="metric-value">2</div>
-                                <div className="metric-sub">Shift 1</div>
+                                <div className="metric-label">Expenses Today</div>
+                                <div className="metric-value">₹{stats.todayExpenses ? stats.todayExpenses.toLocaleString() : 0}</div>
+                                <div className="metric-sub">Shop & Staff</div>
                             </div>
                         </div>
                     </>
@@ -60,16 +65,16 @@ const Dashboard = () => {
                             <div className="metric-icon"><Truck size={24} /></div>
                             <div>
                                 <div className="metric-label">Pending Transfers</div>
-                                <div className="metric-value">3 Orders</div>
+                                <div className="metric-value">0 Orders</div>
                                 <div className="metric-sub">Need Approval</div>
                             </div>
                         </div>
-                        <div className="metric-card">
-                            <div className="metric-icon blue"><LayoutDashboard size={24} /></div>
+                        <div className="metric-card danger" style={{ borderColor: '#FCA5A5' }}>
+                            <div className="metric-icon red" style={{ background: '#FEF2F2', color: '#EF4444' }}><ArrowDownRight size={24} /></div>
                             <div>
-                                <div className="metric-label">Total Stock Value</div>
-                                <div className="metric-value">₹45.2L</div>
-                                <div className="metric-sub">Across all warehouses</div>
+                                <div className="metric-label">Expenses Today</div>
+                                <div className="metric-value">₹{stats.todayExpenses ? stats.todayExpenses.toLocaleString() : 0}</div>
+                                <div className="metric-sub">Admin & Logistics</div>
                             </div>
                         </div>
                     </>
@@ -79,7 +84,7 @@ const Dashboard = () => {
                     <div className="metric-icon purple"><Package size={24} /></div>
                     <div>
                         <div className="metric-label">{selectedShop === 'wholesale' ? 'Global Inventory' : 'Shop Inventory'}</div>
-                        <div className="metric-value">{selectedShop === 'wholesale' ? '3,450' : '845'}</div>
+                        <div className="metric-value">{stats.totalUnits ? stats.totalUnits.toLocaleString() : 0}</div>
                         <div className="metric-sub">Units Available</div>
                     </div>
                 </div>
@@ -88,7 +93,7 @@ const Dashboard = () => {
                     <div className="metric-icon orange"><AlertTriangle size={24} /></div>
                     <div>
                         <div className="metric-label">Low Stock</div>
-                        <div className="metric-value">5 Items</div>
+                        <div className="metric-value">{stats.lowStockCount || 0} Items</div>
                         <div className="metric-sub text-red">Needs Replenishment</div>
                     </div>
                 </div>

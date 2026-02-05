@@ -251,3 +251,28 @@
 .btn-save:hover {
     background: #059669;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 1rem;
+    }
+
+    .settings-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .printer-actions {
+        flex-direction: column;
+    }
+
+    .btn-scan,
+    .btn-test {
+        width: 100%;
+    }
+
+    .form-section-title {
+        font-size: 1rem;
+    }
+}

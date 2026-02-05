@@ -18,87 +18,27 @@ import '../styles/Inventory.css';
 import ProductModal from '../components/ProductModal';
 import { useShop } from '../contexts/ShopContext';
 import { useAuth } from '../contexts/AuthContext';
-
-// Mock Data for UI Dev
-const MOCK_INVENTORY = [
-    // Watches
-    {
-        id: '1',
-        name: 'Titan Neo Splash',
-        model: 'Ti-90123',
-        category: 'Men',
-        price: 4995,
-        costPrice: 2500,
-        stock: { wholesale: 50, retail1: 10, retail2: 5 },
-        brand: 'Titan',
-        image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&h=400&fit=crop'
-    },
-    {
-        id: '2',
-        name: 'Fastrack Reflex',
-        model: 'Fa-X100',
-        category: 'Unisex',
-        price: 2495,
-        costPrice: 1200,
-        stock: { wholesale: 100, retail1: 20, retail2: 15 },
-        brand: 'Fastrack',
-        image: 'https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=400&h=400&fit=crop'
-    },
-    {
-        id: '3',
-        name: 'Casio Vintage',
-        model: 'A168',
-        category: 'Men',
-        price: 3995,
-        costPrice: 1800,
-        stock: { wholesale: 20, retail1: 2, retail2: 0 },
-        brand: 'Casio',
-        image: 'https://images.unsplash.com/photo-1548171915-e79a380a2a4b?w=400&h=400&fit=crop'
-    },
-    { id: '4', name: 'Sonata Gold', model: 'So-G776', category: 'Women', price: 1299, costPrice: 600, stock: { wholesale: 80, retail1: 15, retail2: 10 }, brand: 'Sonata', image: null },
-    { id: '5', name: 'Timex Expedition', model: 'Tx-E44', category: 'Men', price: 3495, costPrice: 1750, stock: { wholesale: 40, retail1: 8, retail2: 4 }, brand: 'Timex', image: null },
-    { id: '6', name: 'Fossil Gen 6', model: 'Fo-Smart', category: 'Smart', price: 18995, costPrice: 12000, stock: { wholesale: 15, retail1: 3, retail2: 1 }, brand: 'Fossil', image: 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=400&h=400&fit=crop' },
-
-    // Clocks - Ajanta
-    { id: 'c1', name: 'Ajanta Quartz Wall', model: 'AJ-497', category: 'Wall Clock', price: 450, costPrice: 200, stock: { wholesale: 200, retail1: 30, retail2: 25 }, brand: 'Ajanta', image: 'https://images.unsplash.com/photo-1563861826100-9cb868c656d9?w=400&h=400&fit=crop' },
-    { id: 'c2', name: 'Ajanta Digital Red', model: 'AJ-Digi', category: 'Digital Clock', price: 890, costPrice: 450, stock: { wholesale: 150, retail1: 20, retail2: 10 }, brand: 'Ajanta', image: null },
-    { id: 'c3', name: 'Ajanta Musical', model: 'AJ-Mus', category: 'Wall Clock', price: 1200, costPrice: 700, stock: { wholesale: 60, retail1: 5, retail2: 5 }, brand: 'Ajanta', image: null },
-    { id: 'c4', name: 'Ajanta OLC-100', model: 'OLC-100', category: 'Table Clock', price: 250, costPrice: 120, stock: { wholesale: 300, retail1: 50, retail2: 40 }, brand: 'Ajanta', image: null },
-
-    // Clocks - Oreva
-    { id: 'c5', name: 'Oreva Classic Wood', model: 'OR-W22', category: 'Wall Clock', price: 650, costPrice: 350, stock: { wholesale: 120, retail1: 15, retail2: 12 }, brand: 'Oreva', image: null },
-    { id: 'c6', name: 'Oreva Silent Sweep', model: 'OR-S99', category: 'Wall Clock', price: 850, costPrice: 480, stock: { wholesale: 90, retail1: 12, retail2: 8 }, brand: 'Oreva', image: null },
-    { id: 'c7', name: 'Oreva Pendulum', model: 'OR-P01', category: 'Wall Clock', price: 1850, costPrice: 1100, stock: { wholesale: 45, retail1: 8, retail2: 3 }, brand: 'Oreva', image: null },
-
-    // Clocks - Rikon
-    { id: 'c8', name: 'Rikon Round 12"', model: 'RK-12', category: 'Wall Clock', price: 550, costPrice: 280, stock: { wholesale: 180, retail1: 25, retail2: 20 }, brand: 'Rikon', image: null },
-    { id: 'c9', name: 'Rikon Square Basic', model: 'RK-Sq', category: 'Wall Clock', price: 420, costPrice: 210, stock: { wholesale: 250, retail1: 40, retail2: 35 }, brand: 'Rikon', image: null },
-
-    // Clocks - Seiko
-    { id: 'c10', name: 'Seiko Melody Motion', model: 'QXM-378', category: 'Premium Clock', price: 8500, costPrice: 5500, stock: { wholesale: 10, retail1: 2, retail2: 1 }, brand: 'Seiko', image: 'https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?w=400&h=400&fit=crop' },
-    { id: 'c11', name: 'Seiko Wooden Mantel', model: 'QXW-221', category: 'Table Clock', price: 4200, costPrice: 2800, stock: { wholesale: 15, retail1: 1, retail2: 1 }, brand: 'Seiko', image: null }
-];
+import { useInventory } from '../contexts/InventoryContext';
 
 const Inventory = () => {
     const { selectedShop, currentShop } = useShop();
-    const { userRole } = useAuth(); // Get user role from AuthContext
+    const { userRole } = useAuth();
+    const { products, updateStock, addProduct } = useInventory();
+
     const [searchTerm, setSearchTerm] = useState('');
-    const [products, setProducts] = useState(MOCK_INVENTORY);
     const [showFilters, setShowFilters] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // Popup State
     const [selectedProduct, setSelectedProduct] = useState(null);
-
-    // Image Search State
     const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
     const [searchImage, setSearchImage] = useState(null);
     const [isScanning, setIsScanning] = useState(false);
-
-    // Transfer Modal State
     const [isTransferOpen, setIsTransferOpen] = useState(false);
 
-    // ... (rest of transfer data state)
+    const [transferData, setTransferData] = useState({
+        productId: '',
+        targetShop: 'retail1',
+        quantity: 0
+    });
 
     const handleImageSearch = (e) => {
         const file = e.target.files[0];
@@ -106,11 +46,9 @@ const Inventory = () => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setSearchImage(reader.result);
-                // Simulate Scanning
                 setIsScanning(true);
                 setTimeout(() => {
                     setIsScanning(false);
-                    // Simulate Finding a Match (For demo, pick Titan Neo Splash)
                     const match = products.find(p => p.id === '1');
                     if (match) {
                         setIsImageSearchOpen(false);
@@ -125,11 +63,6 @@ const Inventory = () => {
             reader.readAsDataURL(file);
         }
     };
-    const [transferData, setTransferData] = useState({
-        productId: '',
-        targetShop: 'retail1',
-        quantity: 0
-    });
 
     const handleAddProduct = (newProduct) => {
         const productWithId = {
@@ -147,7 +80,7 @@ const Inventory = () => {
                 retail2: parseInt(newProduct.retail2Stock) || 0
             }
         };
-        setProducts([...products, productWithId]);
+        addProduct(productWithId);
     };
 
     const handleTransferStock = (e) => {
@@ -155,25 +88,17 @@ const Inventory = () => {
         const { productId, targetShop, quantity } = transferData;
         const qty = parseInt(quantity);
 
-        if (!productId || qty <= 0) return alert('Invalid transfer details');
+        const p = products.find(prod => prod.id === productId);
+        if (!p) return;
 
-        setProducts(currentProducts => currentProducts.map(p => {
-            if (p.id === productId) {
-                if (p.stock.wholesale < qty) {
-                    alert(`Insufficient wholesale stock! Available: ${p.stock.wholesale}`);
-                    return p;
-                }
-                return {
-                    ...p,
-                    stock: {
-                        ...p.stock,
-                        wholesale: p.stock.wholesale - qty,
-                        [targetShop]: p.stock[targetShop] + qty
-                    }
-                };
-            }
-            return p;
-        }));
+        if (p.stock.wholesale < qty) {
+            alert(`Insufficient wholesale stock! Available: ${p.stock.wholesale}`);
+            return;
+        }
+
+        updateStock(productId, 'wholesale', -qty);
+        updateStock(productId, targetShop, qty);
+
         setIsTransferOpen(false);
         setTransferData({ productId: '', targetShop: 'retail1', quantity: 0 });
         alert('Stock transferred successfully!');
@@ -359,10 +284,17 @@ const Inventory = () => {
                             className="btn btn-secondary"
                             style={{ background: '#10B981', color: 'white', border: 'none' }}
                             onClick={() => {
-                                const qty = prompt("Enter Quantity Received from Wholesale:");
-                                if (qty && !isNaN(qty)) {
-                                    alert(`Successfully received ${qty} units from Meeran Wholesale! Stock updated.`);
-                                    // Logic to update local stock would go here
+                                const model = prompt("Enter Model Number of received stock:");
+                                if (!model) return;
+                                const product = products.find(p => p.model.toLowerCase() === model.toLowerCase());
+                                if (product) {
+                                    const qty = prompt(`Enter Quantity of ${product.name} received:`);
+                                    if (qty && !isNaN(qty)) {
+                                        updateStock(product.id, selectedShop, parseInt(qty));
+                                        alert(`Successfully received ${qty} units!`);
+                                    }
+                                } else {
+                                    alert("Product model not found.");
                                 }
                             }}
                         >

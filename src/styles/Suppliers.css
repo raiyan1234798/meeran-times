@@ -97,4 +97,21 @@
     .suppliers-grid {
         grid-template-columns: 1fr;
     }
+
+    .card-header {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .due-amount {
+        align-self: flex-start;
+    }
+
+    .card-actions {
+        flex-direction: column;
+    }
+
+    .btn-card {
+        width: 100%;
+    }
 }

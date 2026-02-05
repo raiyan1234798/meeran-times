@@ -1,0 +1,246 @@
+/* Smart Stock Page Styles */
+.smart-stock-container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.stock-header {
+    margin-bottom: 2rem;
+}
+
+.stock-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.stock-subtitle {
+    color: #6B7280;
+    margin-top: 0.5rem;
+}
+
+.scan-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.camera-box {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    height: 400px;
+}
+
+.camera-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.btn-cancel {
+    background: #EF4444;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 99px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-capture {
+    background: white;
+    color: #000;
+    padding: 0.75rem 1.5rem;
+    border-radius: 99px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.upload-placeholder {
+    border: 2px dashed #E5E7EB;
+    border-radius: 12px;
+    padding: 4rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #F9FAFB;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.placeholder-icon {
+    background: #EEF2FF;
+    padding: 1.5rem;
+    border-radius: 50%;
+    margin-bottom: 1.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-open-camera {
+    background: #4F46E5;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39);
+}
+
+.btn-upload {
+    background: white;
+    color: #374151;
+    padding: 0.75rem 2rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.results-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.preview-image-box {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 300px;
+    background: #000;
+}
+
+.scanning-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.close-preview {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.match-results {
+    border-top: 1px solid #E5E7EB;
+    padding-top: 1rem;
+    animation: fadeIn 0.5s ease;
+}
+
+.stock-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+}
+
+.stock-card {
+    background: #F3F4F6;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+    .smart-stock-container {
+        padding: 1rem;
+    }
+
+    .stock-title {
+        font-size: 1.5rem;
+    }
+
+    .scan-card {
+        padding: 1.5rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .btn-open-camera,
+    .btn-upload {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    .camera-box {
+        height: 300px;
+    }
+
+    .upload-placeholder {
+        padding: 2rem 1rem;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.spin-animation {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

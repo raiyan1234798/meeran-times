@@ -17,6 +17,8 @@ import SalesHistory from './pages/SalesHistory';
 import Settings from './pages/Settings';
 import StockTransfers from './pages/StockTransfers';
 import SmartStock from './pages/SmartStock';
+import Expenses from './pages/Expenses';
+import PrintBill from './pages/PrintBill';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -41,69 +43,84 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 
 import { ShopProvider } from './contexts/ShopContext';
+import { InventoryProvider } from './contexts/InventoryContext';
 
 function App() {
   return (
     <AuthProvider>
-      <ShopProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
+      <InventoryProvider>
+        <ShopProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
 
-            <Route path="/shops" element={
-              <ProtectedRoute>
-                <ShopSelection />
-              </ProtectedRoute>
-            } />
-
-            {/* Protected Routes inside Main Layout */}
-            <Route element={<ProtectedRoute allowedRoles={['admin', 'cashier', 'salesman']}><Layout /></ProtectedRoute>}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/pos" element={<POS />} />
-              <Route path="/smart-stock" element={<SmartStock />} />
-
-              {/* Admin Only Routes */}
-              <Route path="/inventory" element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <Inventory />
+              <Route path="/shops" element={
+                <ProtectedRoute>
+                  <ShopSelection />
                 </ProtectedRoute>
               } />
 
-              <Route path="/employees" element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <Employees />
-                </ProtectedRoute>
-              } />
+              {/* Protected Routes inside Main Layout */}
+              <Route element={<ProtectedRoute allowedRoles={['admin', 'cashier', 'salesman']}><Layout /></ProtectedRoute>}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/pos" element={<POS />} />
+                <Route path="/smart-stock" element={<SmartStock />} />
 
-              <Route path="/suppliers" element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <Suppliers />
-                </ProtectedRoute>
-              } />
+                {/* Admin Only Routes */}
+                <Route path="/inventory" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <Inventory />
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/stock-transfers" element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <StockTransfers />
-                </ProtectedRoute>
-              } />
+                <Route path="/employees" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <Employees />
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/sales" element={
-                <ProtectedRoute allowedRoles={['admin', 'cashier', 'salesman']}>
-                  <SalesHistory />
-                </ProtectedRoute>
-              } />
+                <Route path="/suppliers" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <Suppliers />
+                  </ProtectedRoute>
+                } />
 
-              <Route path="/settings" element={
-                <ProtectedRoute allowedRoles={['admin', 'cashier', 'salesman']}>
-                  <Settings />
-                </ProtectedRoute>
-              } />
+                <Route path="/stock-transfers" element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <StockTransfers />
+                  </ProtectedRoute>
+                } />
 
-              <Route path="*" element={<h3>404 - Page Not Found</h3>} />
-            </Route>
-          </Routes>
-        </Router>
-      </ShopProvider>
+                <Route path="/sales" element={
+                  <ProtectedRoute allowedRoles={['admin', 'cashier', 'salesman']}>
+                    <SalesHistory />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/settings" element={
+                  <ProtectedRoute allowedRoles={['admin', 'cashier', 'salesman']}>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/expenses" element={
+                  <ProtectedRoute allowedRoles={['admin', 'cashier', 'salesman']}>
+                    <Expenses />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/print-bill" element={
+                  <ProtectedRoute allowedRoles={['admin', 'cashier', 'salesman']}>
+                    <PrintBill />
+                  </ProtectedRoute>
+                } />
+
+                <Route path="*" element={<h3>404 - Page Not Found</h3>} />
+              </Route>
+            </Routes>
+          </Router>
+        </ShopProvider>
+      </InventoryProvider>
     </AuthProvider>
   );
 }
