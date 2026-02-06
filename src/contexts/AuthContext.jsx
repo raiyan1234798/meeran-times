@@ -91,12 +91,25 @@ export function AuthProvider({ children }) {
         login,
         loginWithGoogle,
         register,
-        logout
+        logout,
+        loading // Export loading state just in case
     };
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {!loading ? children : (
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100vh',
+                    width: '100vw',
+                    backgroundColor: '#121212',
+                    color: '#fff'
+                }}>
+                    Loading...
+                </div>
+            )}
         </AuthContext.Provider>
     );
 }
