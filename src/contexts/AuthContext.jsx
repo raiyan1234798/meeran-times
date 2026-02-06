@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
         // Create user document with default role
         // For the purpose of getting this 'admin' execution working, we'll default to admin if it's the specific admin email, else staff
         const adminEmails = ['admin@meerantimes.com', 'abubackerraiyn@gmail.com'];
-        const role = (email.includes('admin') || adminEmails.includes(email)) ? 'admin' : 'staff';
+        const role = (email.toLowerCase().includes('admin') || adminEmails.includes(email.toLowerCase())) ? 'admin' : 'staff';
         await setDoc(doc(db, "users", result.user.uid), {
             email: email,
             role: role,
@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
             if (user) {
                 // Ensure specific emails are ALWAYS admin
                 const adminEmails = ['admin@meerantimes.com', 'abubackerraiyn@gmail.com'];
-                if (adminEmails.includes(user.email)) {
+                if (adminEmails.includes(user.email.toLowerCase())) {
                     const docRef = doc(db, "users", user.uid);
                     await setDoc(docRef, {
                         email: user.email,
