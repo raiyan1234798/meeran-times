@@ -27,7 +27,8 @@ export function AuthProvider({ children }) {
         const result = await createUserWithEmailAndPassword(auth, email, password);
         // Create user document with default role
         // For the purpose of getting this 'admin' execution working, we'll default to admin if it's the specific admin email, else staff
-        const role = email.includes('admin') ? 'admin' : 'staff';
+        const adminEmails = ['admin@meerantimes.com', 'abubackerraiyn@gmail.com'];
+        const role = (email.includes('admin') || adminEmails.includes(email)) ? 'admin' : 'staff';
         await setDoc(doc(db, "users", result.user.uid), {
             email: email,
             role: role,
@@ -43,8 +44,9 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // Ensure admin@meerantimes.com is ALWAYS admin
-                if (user.email === 'admin@meerantimes.com') {
+                // Ensure specific emails are ALWAYS admin
+                const adminEmails = ['admin@meerantimes.com', 'abubackerraiyn@gmail.com'];
+                if (adminEmails.includes(user.email)) {
                     const docRef = doc(db, "users", user.uid);
                     await setDoc(docRef, {
                         email: user.email,
