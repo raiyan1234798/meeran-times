@@ -283,13 +283,13 @@ const Employees = () => {
             )}
 
             {/* Attendance Modal */}
-            {isAttendanceModalOpen && selectedEmployeeForAttendance && (
+            {isAttendanceModalOpen && selectedEmployee && (
                 <div className="modal-overlay">
                     <div className="modal-content attendance-modal" style={{ maxWidth: '480px', borderRadius: '24px', padding: '0' }}>
                         <div className="modal-header" style={{ padding: '1.5rem 2rem', borderBottom: '1px solid #F1F5F9' }}>
                             <div>
                                 <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#1E293B' }}>Mark Attendance</h2>
-                                <p style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '2px' }}>{selectedEmployeeForAttendance.name}</p>
+                                <p style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '2px' }}>{selectedEmployee.name}</p>
                             </div>
                             <button className="close-modal-btn" onClick={() => setIsAttendanceModalOpen(false)}><X size={20} /></button>
                         </div>
