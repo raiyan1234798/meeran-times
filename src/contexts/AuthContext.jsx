@@ -60,11 +60,19 @@ export function AuthProvider({ children }) {
                         if (docSnap.exists()) {
                             setUserRole(docSnap.data().role);
                         } else {
-                            console.log("No user document found");
-                            setUserRole('staff'); // Default fallback
+                            // First time login for this user (e.g. Google Auth)
+                            console.log("Creating new user document for", user.email);
+                            const defaultRole = 'staff';
+                            await setDoc(docRef, {
+                                email: user.email,
+                                role: defaultRole,
+                                createdAt: new Date().toISOString(),
+                                authProvider: 'google' // or generic
+                            });
+                            setUserRole(defaultRole);
                         }
                     } catch (error) {
-                        console.error("Error fetching user role:", error);
+                        console.error("Error fetching/creating user role:", error);
                     }
                 }
             } else {
