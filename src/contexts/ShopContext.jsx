@@ -18,7 +18,7 @@ export const ShopProvider = ({ children }) => {
         retail2: { id: 'retail2', name: 'Daylook (Retail)', type: 'sales_point' }
     };
 
-    const currentShop = SHOPS[selectedShop];
+    const currentShop = SHOPS[selectedShop] || SHOPS['wholesale'];
 
     const selectShop = (shopId) => {
         setSelectedShop(shopId);

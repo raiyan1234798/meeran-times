@@ -160,7 +160,7 @@ const Layout = () => {
 
             {/* Main Content Area */}
             <main className="main-content">
-                <header className="top-baer">
+                <header className="top-bar">
                     <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
                         <Menu size={24} />
                     </button>
