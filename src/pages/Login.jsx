@@ -26,7 +26,12 @@ const Login = () => {
             }
             navigate('/shops');
         } catch (err) {
-            setError(`Failed to ${isSignUp ? 'sign up' : 'sign in'}: ` + err.message);
+            console.error(err);
+            if (err.code === 'auth/invalid-credential' || err.message.includes('invalid-credential')) {
+                setError('Incorrect email or password. If you haven\'t created this account yet, please switch to "Create New Account".');
+            } else {
+                setError(`Failed to ${isSignUp ? 'sign up' : 'sign in'}: ` + err.message.replace('Firebase: ', '').replace('Error (auth/', '').replace(').', ''));
+            }
         } finally {
             setLoading(false);
         }
