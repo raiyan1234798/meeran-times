@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     TrendingUp,
     Users,
@@ -16,10 +16,60 @@ import { useInventory } from '../contexts/InventoryContext';
 
 const Dashboard = () => {
     const { currentShop, selectedShop } = useShop();
-    const { getDashboardStats } = useInventory();
+    const { getDashboardStats, sales } = useInventory();
+    const [chartPeriod, setChartPeriod] = useState('week');
 
     // Get real-time stats from context
     const stats = getDashboardStats(selectedShop);
+
+    // Calculate chart data from real sales
+    const getChartData = () => {
+        const data = [];
+        const today = new Date();
+
+        if (chartPeriod === 'week') {
+            const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                const daySales = sales
+                    .filter(s => s.timestamp.startsWith(dateStr) && (selectedShop === 'wholesale' || s.shopId === selectedShop))
+                    .reduce((sum, s) => sum + (s.total || 0), 0);
+
+                data.push({
+                    label: days[date.getDay()],
+                    value: daySales || 0
+                });
+            }
+        } else {
+            // Monthly - last 30 days in 5 groups
+            for (let i = 28; i >= 0; i -= 7) {
+                const date = new Date();
+                date.setDate(today.getDate() - i);
+                const rangeSales = sales
+                    .filter(s => {
+                        const sDate = new Date(s.timestamp.split('T')[0]);
+                        const dStart = new Date(); dStart.setDate(today.getDate() - i);
+                        const dEnd = new Date(); dEnd.setDate(today.getDate() - (i - 6));
+                        return sDate >= dStart && sDate <= dEnd && (selectedShop === 'wholesale' || s.shopId === selectedShop);
+                    })
+                    .reduce((sum, s) => sum + (s.total || 0), 0);
+
+                data.push({
+                    label: `${date.getDate()}/${date.getMonth() + 1}`,
+                    value: rangeSales || 0
+                });
+            }
+        }
+        return data;
+    };
+
+    const getMaxValue = () => {
+        const values = getChartData().map(d => d.value);
+        const max = Math.max(...values);
+        return max <= 0 ? 1000 : max;
+    };
 
     return (
         <div className="dashboard-container">
@@ -104,24 +154,42 @@ const Dashboard = () => {
                 <div className="chart-section">
                     <div className="section-header">
                         <h3>{selectedShop === 'wholesale' ? 'Stock Movement Analytics' : 'Revenue Analytics'}</h3>
-                        <select className="period-select">
-                            <option>This Week</option>
-                            <option>This Month</option>
-                        </select>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <select
+                                className="period-select"
+                                value={chartPeriod}
+                                onChange={(e) => setChartPeriod(e.target.value)}
+                            >
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                            </select>
+                        </div>
                     </div>
 
-                    {/* Custom CSS Chart implementation */}
+                    {/* Custom CSS Chart implementation with Real Data */}
                     <div className="custom-chart">
                         <div className="chart-bg-lines">
                             <div></div><div></div><div></div><div></div>
                         </div>
                         <div className="chart-bars">
-                            {[65, 45, 75, 50, 85, 95, 60].map((h, i) => (
+                            {getChartData().map((item, i) => (
                                 <div key={i} className="bar-group">
-                                    <div className="bar" style={{ height: `${h}%`, background: selectedShop === 'wholesale' ? '#8B5CF6' : '#10B981' }}>
-                                        <div className="tooltip">{selectedShop === 'wholesale' ? `${h} Units` : `₹${(h * 1000).toLocaleString()}`}</div>
+                                    <div
+                                        className="bar"
+                                        style={{
+                                            height: `${Math.max(10, (item.value / getMaxValue()) * 100)}%`,
+                                            background: selectedShop === 'wholesale' ? '#8B5CF6' : '#10B981'
+                                        }}
+                                    >
+                                        <div className="tooltip">
+                                            {selectedShop === 'wholesale'
+                                                ? `${item.value} Units`
+                                                : `₹${item.value.toLocaleString()}`}
+                                        </div>
                                     </div>
-                                    <span className="label">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}</span>
+                                    <span className="label" style={{ fontSize: chartPeriod === 'month' ? '0.65rem' : '0.8rem' }}>
+                                        {item.label}
+                                    </span>
                                 </div>
                             ))}
                         </div>

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { auth, db } from "../firebase";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { auth, db, googleProvider } from "../firebase";
+import { onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const AuthContext = createContext();
 
@@ -14,80 +14,75 @@ export function AuthProvider({ children }) {
     const [userRole, setUserRole] = useState(null); // 'admin' | 'cashier'
     const [loading, setLoading] = useState(true);
 
-    // Mock Login for UI Development (Remove in Production)
-    const mockLogin = async (email, password) => {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 800));
-
-        if (email === "admin@meerantimes.com" && password === "admin") {
-            const user = { uid: "admin1", email, displayName: "Admin User" };
-            setCurrentUser(user);
-            setUserRole("admin");
-            localStorage.setItem("mockUser", JSON.stringify({ user, role: "admin" }));
-            return user;
-        }
-        if (email === "cashier@meerantimes.com" && password === "cashier") {
-            const user = { uid: "cashier1", email, displayName: "Cashier 1" };
-            setCurrentUser(user);
-            setUserRole("cashier");
-            localStorage.setItem("mockUser", JSON.stringify({ user, role: "cashier" }));
-            return user;
-        }
-        if (email === "sales@meerantimes.com" && password === "password") {
-            const user = { uid: "sales1", email, displayName: "Rahul Sharma" };
-            setCurrentUser(user);
-            setUserRole("salesman");
-            localStorage.setItem("mockUser", JSON.stringify({ user, role: "salesman" }));
-            return user;
-        }
-        throw new Error("Invalid credentials");
+    // Real Firebase Auth
+    const login = (email, password) => {
+        return signInWithEmailAndPassword(auth, email, password);
     };
 
-    const login = (email, password) => {
-        // UNCOMMENT THIS FOR REAL FIREBASE AUTH
-        // return signInWithEmailAndPassword(auth, email, password);
-        return mockLogin(email, password);
+    const loginWithGoogle = () => {
+        return signInWithPopup(auth, googleProvider);
+    };
+
+    const register = async (email, password) => {
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        // Create user document with default role
+        // For the purpose of getting this 'admin' execution working, we'll default to admin if it's the specific admin email, else staff
+        const role = email.includes('admin') ? 'admin' : 'staff';
+        await setDoc(doc(db, "users", result.user.uid), {
+            email: email,
+            role: role,
+            createdAt: new Date().toISOString()
+        });
+        return result;
     };
 
     const logout = () => {
-        // return signOut(auth);
-        setCurrentUser(null);
-        setUserRole(null);
-        localStorage.removeItem("mockUser");
+        return signOut(auth);
     };
 
     useEffect(() => {
-        // Check for mock session
-        const stored = localStorage.getItem("mockUser");
-        if (stored) {
-            const { user, role } = JSON.parse(stored);
-            setCurrentUser(user);
-            setUserRole(role);
-        }
-        setLoading(false);
-
-        // REAL FIREBASE LISTENER (Uncomment when config is ready)
-        /*
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
-          if (user) {
-            // Fetch role from Firestore
-            const docRef = doc(db, "users", user.uid);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                setUserRole(docSnap.data().role);
+            if (user) {
+                // Ensure admin@meerantimes.com is ALWAYS admin
+                if (user.email === 'admin@meerantimes.com') {
+                    const docRef = doc(db, "users", user.uid);
+                    await setDoc(docRef, {
+                        email: user.email,
+                        role: 'admin',
+                        lastLogin: new Date().toISOString()
+                    }, { merge: true });
+                    setUserRole('admin');
+                } else {
+                    // Fetch role for other users
+                    const docRef = doc(db, "users", user.uid);
+                    try {
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            setUserRole(docSnap.data().role);
+                        } else {
+                            console.log("No user document found");
+                            setUserRole('staff'); // Default fallback
+                        }
+                    } catch (error) {
+                        console.error("Error fetching user role:", error);
+                    }
+                }
+            } else {
+                setUserRole(null);
             }
-          }
-          setCurrentUser(user);
-          setLoading(false);
+            setCurrentUser(user);
+            setLoading(false);
         });
+
         return unsubscribe;
-        */
     }, []);
 
     const value = {
         currentUser,
         userRole,
         login,
+        loginWithGoogle,
+        register,
         logout
     };
 

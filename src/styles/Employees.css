@@ -107,51 +107,252 @@
     border-radius: 0 0 12px 12px;
 }
 
-/* Attendance Grid Styles */
-.attendance-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.5rem;
-    margin-top: 1rem;
+/* Attendance Modal Modern Styling */
+.attendance-modal .modal-header {
+    background: #FFFFFF;
 }
 
-.day-box {
-    aspect-ratio: 1;
-    border: 1px solid #E5E7EB;
-    border-radius: 4px;
+.attendance-options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.att-opt-btn {
+    border: 2px solid #F1F5F9;
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.att-opt-btn .opt-icon {
+    font-size: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.att-opt-btn .opt-label {
     font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #94A3B8;
+}
+
+.att-opt-btn .opt-status {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1E293B;
+}
+
+/* Specific button states */
+.att-opt-btn.present:hover {
+    border-color: #10B981;
+    background: #F0FDF4;
+}
+
+.att-opt-btn.present:hover .opt-icon {
+    color: #10B981;
+    transform: scale(1.1);
+}
+
+.att-opt-btn.absent:hover {
+    border-color: #EF4444;
+    background: #FEF2F2;
+}
+
+.att-opt-btn.absent:hover .opt-icon {
+    color: #EF4444;
+    transform: scale(1.1);
+}
+
+.att-opt-btn.half:hover {
+    border-color: #3B82F6;
+    background: #EFF6FF;
+}
+
+.att-opt-btn.half:hover .opt-icon {
+    transform: scale(1.1);
+}
+
+.att-leave-btn {
+    width: 100%;
+    background: #F8FAFC;
+    border: 2px solid #F1F5F9;
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: #64748B;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    margin-bottom: 2rem;
 }
 
-.day-box:hover {
-    border-color: #9CA3AF;
+.att-leave-btn:hover {
+    background: #FFFBEB;
+    border-color: #F59E0B;
+    color: #B45309;
 }
 
-.day-box.present {
-    background: #D1FAE5;
-    color: #065F46;
-    border-color: #A7F3D0;
+.attendance-history-section {
+    border-top: 1px solid #F1F5F9;
+    padding-top: 1.5rem;
 }
 
-.day-box.absent {
+.attendance-history-section .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+.status-legend {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.7rem;
+    color: #94A3B8;
+}
+
+.status-legend .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot.p {
+    background: #10B981;
+}
+
+.dot.a {
+    background: #EF4444;
+}
+
+.dot.l {
+    background: #F59E0B;
+}
+
+.dot.hd {
+    background: #3B82F6;
+}
+
+.history-grid-modern {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.history-day-node {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.day-name {
+    font-size: 0.65rem;
+    color: #94A3B8;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.day-status {
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: #CBD5E1;
+}
+
+.day-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #F8FAFC;
+    color: #64748B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid #F1F5F9;
+}
+
+.history-day-node.p .day-circle {
+    background: #DCFCE7;
+    color: #059669;
+    border-color: #86EFAC;
+}
+
+.history-day-node.p .day-status {
+    color: #059669;
+}
+
+.history-day-node.a .day-circle {
     background: #FEE2E2;
-    color: #991B1B;
-    border-color: #FECACA;
+    color: #DC2626;
+    border-color: #FCA5A5;
 }
 
-.day-box.half {
+.history-day-node.a .day-status {
+    color: #DC2626;
+}
+
+.history-day-node.l .day-circle {
+    background: #FEF3C7;
+    color: #D97706;
+    border-color: #FDE68A;
+}
+
+.history-day-node.l .day-status {
+    color: #D97706;
+}
+
+.history-day-node.hd .day-circle {
     background: #DBEAFE;
-    color: #1E40AF;
+    color: #2563EB;
     border-color: #93C5FD;
 }
 
-.day-box.leave {
-    background: #FEF3C7;
-    color: #92400E;
-    border-color: #FDE68A;
+.history-day-node.hd .day-status {
+    color: #2563EB;
+}
+
+.history-day-node.empty .day-circle {
+    background: #F8FAFB;
+    color: #CBD5E1;
+    border: 1px dashed #E2E8F0;
+}
+
+.history-day-node.empty .day-status {
+    color: #E2E8F0;
+}
+
+@media (max-width: 480px) {
+    .attendance-options-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .history-grid-modern {
+        gap: 0.25rem;
+    }
+
+    .day-circle {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
 }

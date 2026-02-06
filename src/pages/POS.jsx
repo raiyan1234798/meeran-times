@@ -13,7 +13,8 @@ import {
     Camera,
     Check,
     X,
-    Eye
+    Eye,
+    ArrowLeft
 } from 'lucide-react';
 import '../styles/POS.css';
 import SmartScannerModal from '../components/smart-search/SmartScannerModal';
@@ -247,13 +248,15 @@ const POS = () => {
                     className={`tab-btn ${mobileView === 'products' ? 'active' : ''}`}
                     onClick={() => setMobileView('products')}
                 >
-                    Products
+                    <Package size={16} />
+                    <span>Browse Items</span>
                 </button>
                 <button
                     className={`tab-btn ${mobileView === 'cart' ? 'active' : ''}`}
                     onClick={() => setMobileView('cart')}
                 >
-                    Current Bill ({cart.length})
+                    <ShoppingCart size={16} />
+                    <span>Review Bill (₹{total.toLocaleString()})</span>
                 </button>
             </div>
 
@@ -282,37 +285,69 @@ const POS = () => {
                         />
                     </div>
 
-                    <div style={{ marginBottom: '1rem' }}>
+                    <div style={{ marginBottom: '1.5rem' }}>
                         <button
-                            style={{
-                                background: 'transparent', border: '1px dashed #9CA3AF', color: '#4B5563',
-                                padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.85rem', cursor: 'pointer', width: '100%'
-                            }}
+                            className="add-manual-btn"
                             onClick={() => setShowManualEntry(!showManualEntry)}
                         >
-                            + Add Manual/Custom Item
+                            <Plus size={16} /> Add Custom/Manual Item
                         </button>
                         {showManualEntry && (
-                            <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
-                                <input
-                                    placeholder="Item Name"
-                                    style={{ flex: 2, padding: '0.5rem', borderRadius: '6px', border: '1px solid #D1D5DB' }}
-                                    value={manualItem.name}
-                                    onChange={e => setManualItem({ ...manualItem, name: e.target.value })}
-                                />
-                                <input
-                                    placeholder="₹ Price"
-                                    type="number"
-                                    style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #D1D5DB' }}
-                                    value={manualItem.price}
-                                    onChange={e => setManualItem({ ...manualItem, price: e.target.value })}
-                                />
-                                <button
-                                    onClick={addManualItem}
-                                    style={{ background: '#111827', color: 'white', border: 'none', borderRadius: '6px', padding: '0 1rem', cursor: 'pointer' }}
-                                >
-                                    Add
-                                </button>
+                            <div className="manual-entry-card" style={{
+                                background: 'white',
+                                padding: '1.25rem',
+                                borderRadius: '12px',
+                                border: '1px solid #E5E7EB',
+                                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
+                                marginBottom: '1.5rem'
+                            }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                                    <div className="form-group" style={{ marginBottom: 0 }}>
+                                        <input
+                                            placeholder="Description (e.g. Service)"
+                                            style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #D1D5DB', width: '100%' }}
+                                            value={manualItem.name}
+                                            onChange={e => setManualItem({ ...manualItem, name: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="form-group" style={{ marginBottom: 0 }}>
+                                        <input
+                                            placeholder="₹ Price"
+                                            type="number"
+                                            style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #D1D5DB', width: '100%' }}
+                                            value={manualItem.price}
+                                            onChange={e => setManualItem({ ...manualItem, price: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <button
+                                        className="btn-primary"
+                                        style={{ flex: 1, padding: '0.75rem' }}
+                                        onClick={() => {
+                                            if (manualItem.name && manualItem.price) {
+                                                addToCart({
+                                                    id: 'CUSTOM-' + Date.now(),
+                                                    name: manualItem.name,
+                                                    price: parseFloat(manualItem.price),
+                                                    model: 'Custom',
+                                                    stock: { [selectedShop]: 999 }
+                                                });
+                                                setManualItem({ name: '', price: '' });
+                                                setShowManualEntry(false);
+                                            }
+                                        }}
+                                    >
+                                        Add to Bill
+                                    </button>
+                                    <button
+                                        className="btn-action"
+                                        style={{ padding: '0.75rem' }}
+                                        onClick={() => setShowManualEntry(false)}
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -355,7 +390,16 @@ const POS = () => {
 
             <div className={`pos-right ${mobileView !== 'cart' ? 'mobile-hidden' : ''}`}>
                 <div className="cart-header">
-                    <h3>Current Bill</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <button
+                            className="btn-action mobile-only"
+                            style={{ width: '36px', height: '36px', padding: '0', borderRadius: '8px' }}
+                            onClick={() => setMobileView('products')}
+                        >
+                            <ArrowLeft size={18} />
+                        </button>
+                        <h3 style={{ fontSize: '1.1rem' }}>Current Bill</h3>
+                    </div>
                     <button className="clear-btn" onClick={() => setCart([])}>Clear</button>
                 </div>
 

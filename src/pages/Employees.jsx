@@ -1,20 +1,68 @@
 import React, { useState } from 'react';
-import { Users, UserPlus, Phone, CheckCircle, XCircle, MoreHorizontal, Edit, Trash2, Calendar, X } from 'lucide-react';
+import { Users, UserPlus, Phone, CheckCircle, XCircle, MoreHorizontal, Edit, Trash2, Calendar, X, BarChart3, TrendingUp } from 'lucide-react';
 import '../styles/ResponsiveTables.css';
 import '../styles/Employees.css';
 
 const MOCK_EMPLOYEES = [
-    { id: 1, name: 'Rahul Sharma', role: 'Salesman', shop: 'Meeran Times (Retail)', phone: '9876543210', status: 'Active', todayAttendance: 'Present', attendance: [] },
-    { id: 2, name: 'Priya Verma', role: 'Cashier', shop: 'Daylook (Retail)', phone: '9123456780', status: 'Active', todayAttendance: 'Half Day', attendance: [] },
-    { id: 3, name: 'Ahmed Khan', role: 'Manager', shop: 'Meeran Wholesale', phone: '9988776655', status: 'On Leave', todayAttendance: 'Leave', attendance: [] },
+    {
+        id: 1,
+        name: 'Rahul Sharma',
+        role: 'Salesman',
+        shop: 'Meeran Times (Retail)',
+        phone: '9876543210',
+        status: 'Active',
+        todayAttendance: 'Present',
+        history: [
+            { date: '2026-02-01', status: 'P' },
+            { date: '2026-02-02', status: 'P' },
+            { date: '2026-02-03', status: 'A' },
+            { date: '2026-02-04', status: 'P' },
+            { date: '2026-02-05', status: 'P' },
+            { date: '2026-01-31', status: 'P' },
+            { date: '2026-01-30', status: 'HD' },
+        ]
+    },
+    {
+        id: 2,
+        name: 'Priya Verma',
+        role: 'Cashier',
+        shop: 'Daylook (Retail)',
+        phone: '9123456780',
+        status: 'Active',
+        todayAttendance: 'Half Day',
+        history: [
+            { date: '2026-02-01', status: 'P' },
+            { date: '2026-02-02', status: 'P' },
+            { date: '2026-02-03', status: 'P' },
+            { date: '2026-02-04', status: 'HD' },
+            { date: '2026-02-05', status: 'HD' },
+        ]
+    },
+    {
+        id: 3,
+        name: 'Ahmed Khan',
+        role: 'Manager',
+        shop: 'Meeran Wholesale',
+        phone: '9988776655',
+        status: 'On Leave',
+        todayAttendance: 'Leave',
+        history: [
+            { date: '2026-02-01', status: 'L' },
+            { date: '2026-02-02', status: 'L' },
+            { date: '2026-02-03', status: 'L' },
+            { date: '2026-02-04', status: 'L' },
+            { date: '2026-02-05', status: 'L' },
+        ]
+    },
 ];
 
 const Employees = () => {
     const [employees, setEmployees] = useState(MOCK_EMPLOYEES);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState(null);
-    const [selectedEmployeeForAttendance, setSelectedEmployeeForAttendance] = useState(null);
+    const [selectedEmployee, setSelectedEmployee] = useState(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -34,8 +82,13 @@ const Employees = () => {
     };
 
     const openAttendanceModal = (emp) => {
-        setSelectedEmployeeForAttendance(emp);
+        setSelectedEmployee(emp);
         setIsAttendanceModalOpen(true);
+    };
+
+    const openReportModal = (emp) => {
+        setSelectedEmployee(emp);
+        setIsReportModalOpen(true);
     };
 
     const handleDelete = (id) => {
@@ -49,19 +102,35 @@ const Employees = () => {
         if (editingEmployee) {
             setEmployees(employees.map(emp => emp.id === editingEmployee.id ? { ...formData, id: emp.id } : emp));
         } else {
-            setEmployees([...employees, { ...formData, id: Date.now(), attendance: [] }]);
+            setEmployees([...employees, { ...formData, id: Date.now(), history: [] }]);
         }
         setIsModalOpen(false);
     };
 
     const handleAttendanceMark = (status) => {
-        // Update the employee's today attendance
+        const statusMap = {
+            'Present': 'P',
+            'Absent': 'A',
+            'Half Day - Morning': 'HD',
+            'Half Day - Evening': 'HD',
+            'Leave': 'L'
+        };
+
+        const today = new Date().toISOString().split('T')[0];
+
         setEmployees(employees.map(emp =>
-            emp.id === selectedEmployeeForAttendance.id
-                ? { ...emp, todayAttendance: status.includes('Half Day') ? 'Half Day' : status }
+            emp.id === selectedEmployee.id
+                ? {
+                    ...emp,
+                    todayAttendance: status,
+                    history: [
+                        { date: today, status: statusMap[status] },
+                        ...emp.history.filter(h => h.date !== today)
+                    ]
+                }
                 : emp
         ));
-        alert(`✓ Marked ${status} for ${selectedEmployeeForAttendance.name}`);
+        alert(`✓ Marked ${status} for ${selectedEmployee.name}`);
     };
 
     return (
@@ -142,6 +211,9 @@ const Employees = () => {
                                             <button title="Attendance" className="action-btn" onClick={() => openAttendanceModal(emp)}>
                                                 <Calendar size={18} />
                                             </button>
+                                            <button title="Performance Report" className="action-btn" style={{ color: '#8B5CF6' }} onClick={() => openReportModal(emp)}>
+                                                <BarChart3 size={18} />
+                                            </button>
                                             <button title="Edit" className="action-btn" style={{ color: '#2563EB' }} onClick={() => openEditModal(emp)}>
                                                 <Edit size={18} />
                                             </button>
@@ -213,95 +285,141 @@ const Employees = () => {
             {/* Attendance Modal */}
             {isAttendanceModalOpen && selectedEmployeeForAttendance && (
                 <div className="modal-overlay">
-                    <div className="modal-content" style={{ maxWidth: '500px' }}>
-                        <div className="modal-header">
-                            <h2>Attendance: {selectedEmployeeForAttendance.name}</h2>
-                            <button className="action-btn" onClick={() => setIsAttendanceModalOpen(false)}><X size={20} /></button>
+                    <div className="modal-content attendance-modal" style={{ maxWidth: '480px', borderRadius: '24px', padding: '0' }}>
+                        <div className="modal-header" style={{ padding: '1.5rem 2rem', borderBottom: '1px solid #F1F5F9' }}>
+                            <div>
+                                <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#1E293B' }}>Mark Attendance</h2>
+                                <p style={{ fontSize: '0.85rem', color: '#64748B', marginTop: '2px' }}>{selectedEmployeeForAttendance.name}</p>
+                            </div>
+                            <button className="close-modal-btn" onClick={() => setIsAttendanceModalOpen(false)}><X size={20} /></button>
                         </div>
-                        <div className="modal-body">
-                            <p style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#4B5563' }}>
-                                Mark attendance for today ({new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })})
-                            </p>
+                        <div className="modal-body" style={{ padding: '2rem' }}>
+                            <div className="today-marker" style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                                <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94A3B8', fontWeight: '700' }}>Current Date</div>
+                                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#334155', marginTop: '4px' }}>
+                                    {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                </div>
+                            </div>
 
-                            {/* Main Attendance Options */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-                                <button
-                                    className="day-box present"
-                                    style={{ height: '70px', fontSize: '1rem', fontWeight: '600', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
-                                    onClick={() => { handleAttendanceMark('Present'); setIsAttendanceModalOpen(false); }}
-                                >
-                                    <CheckCircle size={20} />
-                                    Present
+                            <div className="attendance-options-grid">
+                                <button className="att-opt-btn present" onClick={() => { handleAttendanceMark('Present'); setIsAttendanceModalOpen(false); }}>
+                                    <div className="opt-icon"><CheckCircle size={28} /></div>
+                                    <div className="opt-label">Full Day</div>
+                                    <div className="opt-status">Present</div>
                                 </button>
-                                <button
-                                    className="day-box absent"
-                                    style={{ height: '70px', fontSize: '1rem', fontWeight: '600', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}
-                                    onClick={() => { handleAttendanceMark('Absent'); setIsAttendanceModalOpen(false); }}
-                                >
-                                    <XCircle size={20} />
-                                    Absent
+
+                                <button className="att-opt-btn absent" onClick={() => { handleAttendanceMark('Absent'); setIsAttendanceModalOpen(false); }}>
+                                    <div className="opt-icon"><XCircle size={28} /></div>
+                                    <div className="opt-label">Full Day</div>
+                                    <div className="opt-status">Absent</div>
+                                </button>
+
+                                <button className="att-opt-btn half" onClick={() => { handleAttendanceMark('Half Day - Morning'); setIsAttendanceModalOpen(false); }}>
+                                    <div className="opt-icon">🌅</div>
+                                    <div className="opt-label">Morning</div>
+                                    <div className="opt-status">Half Day</div>
+                                </button>
+
+                                <button className="att-opt-btn half" onClick={() => { handleAttendanceMark('Half Day - Evening'); setIsAttendanceModalOpen(false); }}>
+                                    <div className="opt-icon">🌆</div>
+                                    <div className="opt-label">Evening</div>
+                                    <div className="opt-status">Half Day</div>
                                 </button>
                             </div>
 
-                            {/* Half Day Options */}
-                            <p style={{ fontSize: '0.85rem', color: '#6B7280', marginBottom: '0.5rem' }}>Half Day Options:</p>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
-                                <button
-                                    className="day-box half"
-                                    style={{ height: '60px', fontSize: '0.9rem', fontWeight: '500', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.15rem' }}
-                                    onClick={() => { handleAttendanceMark('Half Day - Morning'); setIsAttendanceModalOpen(false); }}
-                                >
-                                    🌅 Morning Only
-                                </button>
-                                <button
-                                    className="day-box half"
-                                    style={{ height: '60px', fontSize: '0.9rem', fontWeight: '500', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.15rem' }}
-                                    onClick={() => { handleAttendanceMark('Half Day - Evening'); setIsAttendanceModalOpen(false); }}
-                                >
-                                    🌆 Evening Only
-                                </button>
-                            </div>
-
-                            {/* Leave Option */}
-                            <button
-                                style={{
-                                    width: '100%',
-                                    padding: '0.75rem',
-                                    background: '#FEF3C7',
-                                    border: '1px solid #F59E0B',
-                                    borderRadius: '8px',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '500',
-                                    color: '#92400E',
-                                    cursor: 'pointer',
-                                    marginBottom: '1.5rem'
-                                }}
-                                onClick={() => { handleAttendanceMark('Leave'); setIsAttendanceModalOpen(false); }}
-                            >
-                                📋 Mark as Leave (Approved)
+                            <button className="att-leave-btn" onClick={() => { handleAttendanceMark('Leave'); setIsAttendanceModalOpen(false); }}>
+                                <Calendar size={18} />
+                                <span>Approved Leave / Vacation</span>
                             </button>
 
-                            <h3 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: '#374151' }}>History (Last 7 Days)</h3>
-                            <div className="attendance-grid">
-                                {[...Array(7)].map((_, i) => {
-                                    const statuses = ['present', 'present', 'leave', 'half', 'absent', 'present', 'present'];
-                                    const labels = ['P', 'P', 'L', 'HD', 'A', 'P', 'P'];
-                                    return (
-                                        <div key={i} className={`day-box ${statuses[i]}`}>
-                                            <span style={{ fontWeight: 'bold' }}>{new Date(Date.now() - (6 - i) * 86400000).getDate()}</span>
-                                            <span style={{ fontSize: '0.65rem' }}>{labels[i]}</span>
-                                        </div>
-                                    );
-                                })}
+                            <div className="attendance-history-section">
+                                <div className="section-title">
+                                    <span>Last 7 Days</span>
+                                    <div className="status-legend">
+                                        <span className="dot p"></span> P
+                                        <span className="dot a"></span> A
+                                        <span className="dot l"></span> L
+                                        <span className="dot hd"></span> HD
+                                    </div>
+                                </div>
+                                <div className="history-grid-modern">
+                                    {[...Array(7)].map((_, i) => {
+                                        const date = new Date(Date.now() - (6 - i) * 86400000);
+                                        const dateStr = date.toISOString().split('T')[0];
+                                        const entry = selectedEmployee.history.find(h => h.date === dateStr);
+                                        const status = entry ? entry.status.toLowerCase() : 'empty';
+                                        return (
+                                            <div key={i} className={`history-day-node ${status}`}>
+                                                <div className="day-name">{date.toLocaleDateString('en-IN', { weekday: 'short' })}</div>
+                                                <div className="day-circle">{date.getDate()}</div>
+                                                <div className="day-status">{status === 'empty' ? '-' : status.toUpperCase()}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Performance Report Modal */}
+            {isReportModalOpen && selectedEmployee && (
+                <div className="modal-overlay">
+                    <div className="modal-content" style={{ maxWidth: '550px', borderRadius: '24px' }}>
+                        <div className="modal-header">
+                            <div>
+                                <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <TrendingUp style={{ color: '#8B5CF6' }} /> Performance Analysis
+                                </h2>
+                                <p style={{ fontSize: '0.9rem', color: '#64748B' }}>Report for {selectedEmployee.name}</p>
+                            </div>
+                            <button className="action-btn" onClick={() => setIsReportModalOpen(false)}><X size={20} /></button>
+                        </div>
+                        <div className="modal-body">
+                            {/* Summary Cards */}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
+                                <div style={{ background: '#F0FDF4', padding: '1rem', borderRadius: '16px', border: '1px solid #DCFCE7', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#166534', textTransform: 'uppercase' }}>Present</div>
+                                    <div style={{ fontSize: '2rem', fontWeight: '800', color: '#15803D' }}>
+                                        {selectedEmployee.history.filter(h => h.status === 'P').length}
+                                    </div>
+                                </div>
+                                <div style={{ background: '#FEF2F2', padding: '1rem', borderRadius: '16px', border: '1px solid #FEE2E2', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#991B1B', textTransform: 'uppercase' }}>Absent</div>
+                                    <div style={{ fontSize: '2rem', fontWeight: '800', color: '#B91C1C' }}>
+                                        {selectedEmployee.history.filter(h => h.status === 'A').length}
+                                    </div>
+                                </div>
+                                <div style={{ background: '#EFF6FF', padding: '1rem', borderRadius: '16px', border: '1px solid #DBEAFE', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#1E40AF', textTransform: 'uppercase' }}>Score</div>
+                                    <div style={{ fontSize: '2rem', fontWeight: '800', color: '#1D4ED8' }}>
+                                        {Math.round((selectedEmployee.history.filter(h => h.status === 'P').length / Math.max(1, selectedEmployee.history.length)) * 100)}%
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Legend */}
-                            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', fontSize: '0.75rem', color: '#6B7280', flexWrap: 'wrap' }}>
-                                <span><span style={{ background: '#DCFCE7', padding: '2px 6px', borderRadius: '4px', marginRight: '4px' }}>P</span> Present</span>
-                                <span><span style={{ background: '#FEE2E2', padding: '2px 6px', borderRadius: '4px', marginRight: '4px' }}>A</span> Absent</span>
-                                <span><span style={{ background: '#FEF3C7', padding: '2px 6px', borderRadius: '4px', marginRight: '4px' }}>L</span> Leave</span>
-                                <span><span style={{ background: '#DBEAFE', padding: '2px 6px', borderRadius: '4px', marginRight: '4px' }}>HD</span> Half Day</span>
+                            <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: '#1E293B' }}>Attendance Trend</h3>
+                            <div className="history-grid-modern" style={{ marginBottom: '2rem' }}>
+                                {selectedEmployee.history.slice(0, 10).map((h, i) => (
+                                    <div key={i} className={`history-day-node ${h.status.toLowerCase()}`}>
+                                        <div className="day-circle" style={{ width: '40px', height: '40px' }}>{h.status}</div>
+                                        <div className="day-name" style={{ fontSize: '0.6rem' }}>{h.date.split('-')[2]}/{h.date.split('-')[1]}</div>
+                                    </div>
+                                ))}
                             </div>
+
+                            <div style={{ background: '#F8FAFC', padding: '1.25rem', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
+                                <h4 style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '0.75rem' }}>Management Insight:</h4>
+                                <p style={{ fontSize: '0.9rem', lineHeight: '1.5', color: '#64748B' }}>
+                                    {selectedEmployee.history.filter(h => h.status === 'A').length > 2
+                                        ? "⚠️ Higher than average absenteeism. Consideration for review recommended."
+                                        : "✅ Consistent attendance performance. Maintaining high reliability standards."}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn-primary" style={{ width: 'auto' }} onClick={() => window.print()}>Export PDF Report</button>
                         </div>
                     </div>
                 </div>
